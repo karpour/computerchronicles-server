@@ -14,22 +14,24 @@ export default function getEpisodeDiffs(ep1: ComputerChroniclesEpisodeMetadata, 
         return result;
     };
 
+    if (ep1.iaIdentifier !== ep2.iaIdentifier)
+        diffs.push(`Internet archive identifier changed from ${ep1.iaIdentifier} to ${ep2.iaIdentifier}`);
+    if (ep1.issues?.audioIssues !== ep2.issues?.audioIssues)
+        diffs.push(`Audio issues changed from ${ep1.issues?.audioIssues} to ${ep2.issues?.audioIssues}`);
+    if (ep1.issues?.noAudio !== ep2.issues?.noAudio)
+        diffs.push(`No Audio changed from ${ep1.issues?.audioIssues} to ${ep2.issues?.audioIssues}`);
+    if (ep1.issues?.videoIssues !== ep2.issues?.videoIssues)
+        diffs.push(`Video issues changed from ${ep1.issues?.audioIssues} to ${ep2.issues?.audioIssues}`);
+    if (ep1.airingDate !== ep2.airingDate)
+        diffs.push(`Airing date changed from ${ep1.airingDate} to ${ep2.airingDate}`);
+
+
     if (ep1.isReRun && ep2.isReRun) {
     } else if (!ep1.isReRun && !ep2.isReRun) {
-        if (ep1.iaIdentifier !== ep2.iaIdentifier)
-            diffs.push(`Internet archive identifier changed from ${ep1.iaIdentifier} to ${ep2.iaIdentifier}`);
-        if (ep1.issues?.audioIssues !== ep2.issues?.audioIssues)
-            diffs.push(`Audio issues changed from ${ep1.issues?.audioIssues} to ${ep2.issues?.audioIssues}`);
-        if (ep1.issues?.noAudio !== ep2.issues?.noAudio)
-            diffs.push(`No Audio changed from ${ep1.issues?.audioIssues} to ${ep2.issues?.audioIssues}`);
-        if (ep1.issues?.videoIssues !== ep2.issues?.videoIssues)
-            diffs.push(`Video issues changed from ${ep1.issues?.audioIssues} to ${ep2.issues?.audioIssues}`);
         if (ep1.title !== ep2.title)
             diffs.push(`Title changed from '${ep1.title}' to '${ep2.title}'`);
         //if (ep1.episodeNumber !== ep2.episodeNumber) diffs.push(``);
         //if (ep1.isReRun !== ep2.isReRun) diffs.push(``);
-        if (ep1.airingDate !== ep2.airingDate)
-            diffs.push(`Airing date changed from ${ep1.airingDate} to ${ep2.airingDate}`);
         if (ep1.productionDate !== ep2.productionDate)
             diffs.push(`Production date changed from ${ep1.productionDate} to ${ep2.productionDate}`);
         if (ep1.description !== ep2.description)

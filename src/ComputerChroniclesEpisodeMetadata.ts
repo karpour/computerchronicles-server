@@ -37,6 +37,7 @@ export type ComputerChroniclesOriginalEpisodeMetadata = {
 
 
 export type ComputerChroniclesRerunEpisodeMetadata = {
+    iaIdentifier?: string,
     episodeNumber: number,
     isReRun: true,
     reRunOf: number,
