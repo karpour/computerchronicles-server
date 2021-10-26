@@ -1,4 +1,5 @@
 import { ObjectId } from "mongodb";
+import readComputerChroniclesCsvItemsFile from "./ComputerChroniclesCsvItemGenerator";
 import ComputerChroniclesEpisodeDb from "./ComputerChroniclesEpisodeDb";
 import { ComputerChroniclesEpisodeMetadata } from "./ComputerChroniclesEpisodeMetadata";
 import { connectToDatabase } from "./connectToDatabase";
@@ -76,20 +77,24 @@ let exampledata2: ComputerChroniclesEpisodeMetadata = {
 
 
 async function main() {
+    if (process.argv.length != 3) {
+        console.error(`Usage: ${process.argv[0]} ${process.argv[1]} <path-to-csv>`);
+        process.exit(1);
+    }
     const db = await connectToDatabase();
     const episodeDb = new ComputerChroniclesEpisodeDb(db);
     console.log("WIPE");
     await episodeDb.wipe();
 
-    await episodeDb.insertEpisode(exampledata);
 
-    await episodeDb.updateEpisode(exampledata2);
+    const filePath = process.argv[2];
 
-    await episodeDb.updateEpisode(exampledata);
+    const generator = readComputerChroniclesCsvItemsFile(filePath);
 
-    console.log("====LIVEDB===");
-    console.log(await episodeDb.getAllEpisodes());
-    console.log("====ARCHIVE===");
-    console.log(await episodeDb.getAllArchivedEpisodes());
+    for await (let episode of generator) {
+        console.log(`Inserting episode ${episode.episodeNumber}`)
+        await episodeDb.insertEpisode(episode);
+    }
 }
+
 main();
