@@ -31,8 +31,16 @@ export default class ComputerChroniclesEpisodeDb {
         return this.episodeArchive.find().toArray();
     }
 
-    public getEpisode(episodeNumber: number): Promise<ComputerChroniclesEpisodeMetadata | null> {
-        return this.episodeCollection.findOne({ _id: this.getEpisodeObjectId(episodeNumber) });
+    public async getEpisode(episodeNumber: number, version?: number): Promise<ComputerChroniclesEpisodeMetadata | null> {
+        let ep: ComputerChroniclesEpisodeMetadata | null = null;
+        if (version === undefined) {
+            ep = await this.episodeCollection.findOne({ _id: this.getEpisodeObjectId(episodeNumber) });
+        } else {
+            ep = await this.episodeCollection.findOne({ _id: this.getEpisodeObjectId(episodeNumber), version: version });
+            if (!ep) ep = await this.episodeArchive.findOne({ _id: this.getEpisodeObjectArchiveId(episodeNumber, version), version: version });
+        }
+        if(ep) delete (ep as any)._id;
+        return ep;
     }
 
     public async updateEpisode(newEpisode: ComputerChroniclesEpisodeMetadata): Promise<UpdateResult | null> {
