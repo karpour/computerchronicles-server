@@ -1,12 +1,14 @@
 import { Collection, Db, InsertOneResult, ObjectId, UpdateResult } from "mongodb";
 import { ComputerChroniclesEpisodeMetadata } from "./ComputerChroniclesEpisodeMetadata";
 import getEpisodeDiffs from "./getEpisodeDiffs";
+import requireEnv from "./requireEnv";
 
 type ComputerChroniclesEpisodeMetadataMongo = ComputerChroniclesEpisodeMetadata & { _id: ObjectId; version: number; };
 
+const MONGO_EPISODES_COLLECTION = requireEnv("MONGO_EPISODES_COLLECTION");
+const MONGO_ARCHIVE_COLLECTION = requireEnv("MONGO_ARCHIVE_COLLECTION");
+
 export default class ComputerChroniclesEpisodeDb {
-    public static readonly EPISODES_COLLECTION_NAME: string = "episodes";
-    public static readonly EPISODES_ARCHIVE_COLLECTION_NAME: string = "episodesarchive";
     protected episodeCollection: Collection<ComputerChroniclesEpisodeMetadataMongo>;
     protected episodeArchive: Collection<ComputerChroniclesEpisodeMetadataMongo>;
 
@@ -19,8 +21,8 @@ export default class ComputerChroniclesEpisodeDb {
     }
 
     public constructor(private mongoDb: Db) {
-        this.episodeCollection = this.mongoDb.collection(ComputerChroniclesEpisodeDb.EPISODES_COLLECTION_NAME);
-        this.episodeArchive = this.mongoDb.collection(ComputerChroniclesEpisodeDb.EPISODES_ARCHIVE_COLLECTION_NAME);
+        this.episodeCollection = this.mongoDb.collection(MONGO_EPISODES_COLLECTION);
+        this.episodeArchive = this.mongoDb.collection(MONGO_ARCHIVE_COLLECTION);
     }
 
     public async getAllEpisodes(): Promise<ComputerChroniclesEpisodeMetadata[]> {
