@@ -9,6 +9,7 @@ import ComputerChroniclesCache from "./ComputerChroniclesCache";
 import cookieParser from "cookie-parser";
 
 export const PORT = requireEnv("PORT");
+export const CACHE_REFRESH_IN_SECONDS = validatePositiveInteger(parseInt(requireEnv("CACHE_REFRESH_IN_SECONDS")));
 
 export const STATIC_CONTENT_PATH = requireEnv("STATIC_CONTENT_PATH");
 
@@ -18,7 +19,7 @@ async function main() {
     const usersDb = new Users(db);
     const authDb = new AuthTokens(db);
 
-    const cache: ComputerChroniclesCache = new ComputerChroniclesCache(episodeDb, 3600);
+    const cache: ComputerChroniclesCache = new ComputerChroniclesCache(episodeDb, CACHE_REFRESH_IN_SECONDS);
 
     const app = express();
     app.use(cookieParser());
