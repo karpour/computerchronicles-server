@@ -3,16 +3,27 @@ export type ComputerChroniclesGuest = {
     role?: string;
 };
 
+export function computerChroniclesGuestToString(guest: ComputerChroniclesGuest): string {
+    return `${guest.name}${guest.role ? " | " + guest.role : ""}`;
+}
+
 export type ComputerChroniclesFeaturedProduct = {
     company?: string;
     product: string,
 };
 
+export function computerChroniclesFeaturedProductToString(product: ComputerChroniclesFeaturedProduct): string {
+    return `${product.company ? product.company + " | " : ""}${product.product}`;
+}
+
 export type ComputerChroniclesLocation = {
     name: string;
-    location: string;
-    fullAddress?: string;
+    location?: string;
 };
+
+export function computerChroniclesLocationToString(location: ComputerChroniclesLocation): string {
+    return `${location.name}${location.location ? " | " + location.location : ""}`;
+}
 
 export type ComputerChroniclesEpisodeIssues = {
     videoIssues?: boolean,
@@ -41,6 +52,7 @@ export type ComputerChroniclesOriginalEpisodeMetadata = {
 };
 
 export type ComputerChroniclesRerunEpisodeMetadata = {
+    issues?: ComputerChroniclesEpisodeIssues;
     iaIdentifier?: string,
     episodeNumber: number,
     isReRun: true,

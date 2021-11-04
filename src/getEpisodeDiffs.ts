@@ -24,6 +24,8 @@ export default function getEpisodeDiffs(ep1: ComputerChroniclesEpisodeMetadata, 
         diffs.push(`Video issues changed from ${ep1.issues?.audioIssues} to ${ep2.issues?.audioIssues}`);
     if (ep1.airingDate !== ep2.airingDate)
         diffs.push(`Airing date changed from ${ep1.airingDate} to ${ep2.airingDate}`);
+    if (ep1.status !== ep2.status)
+        diffs.push(`Status changed from ${ep1.status} to ${ep2.status}`);
 
 
     if (ep1.isReRun && ep2.isReRun) {
@@ -114,6 +116,7 @@ let ep1: ComputerChroniclesEpisodeMetadata = {
         product: "Windows 95"
     }],
     tags: ["Tag1", "Tag2", "Taggy tag"],
+    status: "unknown"
 };
 
 let ep2: ComputerChroniclesEpisodeMetadata = {
@@ -153,6 +156,7 @@ let ep2: ComputerChroniclesEpisodeMetadata = {
         product: "Windows 96"
     }],
     tags: ["Tag1", "Tag2ggg"],
+    status: "unknown"
 };
 
 //console.log(getEpisodeDiffs(ep1, ep1));

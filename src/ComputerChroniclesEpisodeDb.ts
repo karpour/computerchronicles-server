@@ -84,7 +84,7 @@ export default class ComputerChroniclesEpisodeDb {
     }
 
     public async wipe() {
-        this.episodeCollection.drop();
-        this.episodeArchive.drop();
+        await this.episodeCollection.drop();
+        await this.episodeArchive.drop();
     }
 }

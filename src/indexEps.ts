@@ -9,8 +9,13 @@ async function main() {
     }
     const db = await connectToDatabase();
     const episodeDb = new ComputerChroniclesEpisodeDb(db);
-    console.log("WIPE");
-    await episodeDb.wipe();
+    try {
+        console.log("WIPE");
+        await episodeDb.wipe();
+    } catch (err) {
+        console.log((err as Error).message);
+    }
+
 
 
     const filePath = process.argv[2];
@@ -18,8 +23,12 @@ async function main() {
     const generator = readComputerChroniclesCsvItemsFile(filePath);
 
     for await (let episode of generator) {
-        console.log(`Inserting episode ${episode.episodeNumber}`)
-        await episodeDb.insertEpisode(episode);
+        console.log(`Inserting episode ${episode.episodeNumber}`);
+        try {
+            await episodeDb.insertEpisode(episode);
+        } catch (err) {
+            console.log((err as Error).message);
+        }
     }
 }
 
