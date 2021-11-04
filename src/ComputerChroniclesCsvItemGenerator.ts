@@ -1,7 +1,7 @@
 import Parser from "csv-parse";
 import { ReadStream } from "fs";
 import fs from "fs";
-import { ComputerChroniclesEpisodeMetadata, ComputerChroniclesFeaturedProduct, ComputerChroniclesGuest, ComputerChroniclesOriginalEpisodeMetadata, ComputerChroniclesRerunEpisodeMetadata } from "./ComputerChroniclesEpisodeMetadata";
+import { ComputerChroniclesEpisodeMetadata, ComputerChroniclesEpisodeStatus, ComputerChroniclesFeaturedProduct, ComputerChroniclesGuest, ComputerChroniclesOriginalEpisodeMetadata, ComputerChroniclesRerunEpisodeMetadata } from "./ComputerChroniclesEpisodeMetadata";
 
 type CsvCCData = {
     iaIdentifier: string,
@@ -69,11 +69,28 @@ export function convertCsvCCData(c: CsvCCData): ComputerChroniclesEpisodeMetadat
         }
     }
 
+    function mapStatus(status: string): ComputerChroniclesEpisodeStatus {
+        switch (status) {
+            case "unknown":
+                return "unknown";
+            case "needs fixing":
+                return "needswork";
+            case "review":
+                return "review";
+            case "done":
+                return "done";
+            default:
+                return "unknown";
+        }
+    }
+
     if (c.isReRun == "TRUE") {
         const reRun: ComputerChroniclesRerunEpisodeMetadata = {
             airingDate: c.airingDate ? validateDate(c.airingDate) : "",
             episodeNumber: parseInt(c.episodeNumber),
             isReRun: true,
+            reRunOf: null,
+            status: mapStatus(c.status)
         };
         if (c.iaIdentifier) reRun.iaIdentifier = c.iaIdentifier;
         if (c.reRunOf) reRun.reRunOf = parseInt(c.reRunOf);
@@ -87,11 +104,12 @@ export function convertCsvCCData(c: CsvCCData): ComputerChroniclesEpisodeMetadat
             productionDate: "",
             description: c.description,
             host: c.host ? parseCCGuest(c.host) : { name: "Stewart Cheifet" },
-            coHosts: c.coHost.split(';').map(parseCCGuest),
-            guests: c.guests.split(';').map(parseCCGuest),
+            coHosts: c.coHost.split(';').filter(item => item != "").map(parseCCGuest),
+            guests: c.guests.split(';').filter(item => item != "").map(parseCCGuest),
             locations: [],
-            featuredProducts: c.featuredProducts.split(',').map(parseCCProduct),
-            tags: c.tags.split(',').map(tag => tag.trim()),
+            featuredProducts: c.featuredProducts.split(',').filter(item => item != "").map(parseCCProduct),
+            tags: c.tags.split(',').filter(item => item != "").map(tag => tag.trim()).filter(tag => tag != ""),
+            status: mapStatus(c.status)
         };
         if (c.iaIdentifier) originalEp.iaIdentifier = c.iaIdentifier;
         return originalEp;
@@ -109,7 +127,7 @@ export async function* ComputerChroniclesCsvItemGenerator(fileStream: ReadStream
         try {
             let epCsv = episode as CsvCCData;
 
-            let ep = convertCsvCCData(epCsv)
+            let ep = convertCsvCCData(epCsv);
 
             yield ep;
         } catch (err) {

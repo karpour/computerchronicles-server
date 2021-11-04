@@ -1,3 +1,5 @@
+#!/usr/bin/node
+
 import { connectToDatabase } from "../connectToDatabase";
 import Users, { UserRole } from "../Users";
 

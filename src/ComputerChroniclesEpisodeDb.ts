@@ -3,14 +3,24 @@ import { ComputerChroniclesEpisodeMetadata } from "./ComputerChroniclesEpisodeMe
 import getEpisodeDiffs from "./getEpisodeDiffs";
 import requireEnv from "./requireEnv";
 
-type ComputerChroniclesEpisodeMetadataMongo = ComputerChroniclesEpisodeMetadata & { _id: ObjectId; version: number; };
+type MongoData = { _id: ObjectId; version: number; };
+
+type ComputerChroniclesEpisodeMetadataMongo = ComputerChroniclesEpisodeMetadata & MongoData;
 
 const MONGO_EPISODES_COLLECTION = requireEnv("MONGO_EPISODES_COLLECTION");
 const MONGO_ARCHIVE_COLLECTION = requireEnv("MONGO_ARCHIVE_COLLECTION");
 
+
 export default class ComputerChroniclesEpisodeDb {
     protected episodeCollection: Collection<ComputerChroniclesEpisodeMetadataMongo>;
     protected episodeArchive: Collection<ComputerChroniclesEpisodeMetadataMongo>;
+
+    public stripMongoData(episode: ComputerChroniclesEpisodeMetadataMongo): ComputerChroniclesEpisodeMetadata {
+        let ep: ComputerChroniclesEpisodeMetadata & Partial<MongoData> = episode;
+        delete ep._id;
+        delete ep.version;
+        return ep;
+    }
 
     private getEpisodeObjectId(episodeNumber: number): ObjectId {
         return new ObjectId(`${episodeNumber}`.padStart(12, '0'));
@@ -26,23 +36,23 @@ export default class ComputerChroniclesEpisodeDb {
     }
 
     public async getAllEpisodes(): Promise<ComputerChroniclesEpisodeMetadata[]> {
-        return this.episodeCollection.find().toArray();
+        return this.episodeCollection.find().toArray().then(array => array.map(this.stripMongoData));
     }
 
     public async getAllArchivedEpisodes(): Promise<ComputerChroniclesEpisodeMetadata[]> {
-        return this.episodeArchive.find().toArray();
+        return this.episodeArchive.find().toArray().then(array => array.map(this.stripMongoData));
     }
 
     public async getEpisode(episodeNumber: number, version?: number): Promise<ComputerChroniclesEpisodeMetadata | null> {
-        let ep: ComputerChroniclesEpisodeMetadata | null = null;
+        let ep: ComputerChroniclesEpisodeMetadataMongo | null = null;
         if (version === undefined) {
             ep = await this.episodeCollection.findOne({ _id: this.getEpisodeObjectId(episodeNumber) });
         } else {
             ep = await this.episodeCollection.findOne({ _id: this.getEpisodeObjectId(episodeNumber), version: version });
             if (!ep) ep = await this.episodeArchive.findOne({ _id: this.getEpisodeObjectArchiveId(episodeNumber, version), version: version });
         }
-        if(ep) delete (ep as any)._id;
-        return ep;
+        if (ep) return this.stripMongoData(ep);
+        return null;
     }
 
     public async updateEpisode(newEpisode: ComputerChroniclesEpisodeMetadata): Promise<UpdateResult | null> {

@@ -36,7 +36,7 @@ export default class Users {
         return new ObjectId(name.padStart(12, '0'));
     }
 
-    public createUser(name: string, email: string, password: string, role: UserRole = "user") {
+    public createUser(name: string, password: string, email: string, role: UserRole = "user") {
         let userDataMongo: UserDataMongo = {
             _id: this.createUserObjectId(name),
             name: name,

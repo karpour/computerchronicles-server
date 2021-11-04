@@ -1,6 +1,5 @@
 import ComputerChroniclesEpisodeDb from "./ComputerChroniclesEpisodeDb";
 import {
-    ComputerChroniclesEpisodeMetadata,
     ComputerChroniclesFeaturedProduct,
     computerChroniclesFeaturedProductToString,
     ComputerChroniclesGuest,
@@ -43,13 +42,17 @@ export default class ComputerChroniclesCache {
 
         for (let episode of episodes) {
             if (!episode.isReRun) {
-                this.addCoHosts(episode.coHosts);
-                this.addGuests(episode.guests);
-                this.addFeaturedProducts(episode.featuredProducts);
-                this.addLocations(episode.locations);
-                this.addTags(episode.tags);
+                this.addEpisode(episode);
             }
         }
+    }
+
+    public addEpisode(episode: ComputerChroniclesOriginalEpisodeMetadata) {
+        this.addCoHosts(episode.coHosts);
+        this.addGuests(episode.guests);
+        this.addFeaturedProducts(episode.featuredProducts);
+        this.addLocations(episode.locations);
+        this.addTags(episode.tags);
     }
 
     public addCoHosts(coHosts: ComputerChroniclesGuest[]) {

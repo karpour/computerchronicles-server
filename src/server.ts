@@ -27,7 +27,7 @@ async function main() {
         extended: true
     }));
 
-    app.get('/api/episode/', async (req, res) => {
+    app.get('/api/episodes/', async (req, res) => {
         res.status(200).send(await episodeDb.getAllEpisodes());
     });
 
@@ -64,6 +64,7 @@ async function main() {
 
     app.put('/api/episode/:id', async (req, res) => {
         console.log(req.headers);
+        console.log(req.body)
         res.status(200);
     });
 

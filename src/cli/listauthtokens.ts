@@ -1,3 +1,5 @@
+#!/usr/bin/node
+
 import AuthTokens from "../AuthTokens";
 import { connectToDatabase } from "../connectToDatabase";
 import Users from "../Users";
