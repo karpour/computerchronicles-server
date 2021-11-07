@@ -3,15 +3,24 @@ import express from "express";
 import { connectToDatabase } from "./connectToDatabase";
 import ComputerChroniclesEpisodeDb from "./ComputerChroniclesEpisodeDb";
 import { validatePositiveInteger } from "./validatePositiveInteger";
-import Users from "./Users";
+import Users, { UserData } from "./Users";
 import AuthTokens from "./AuthTokens";
 import ComputerChroniclesCache from "./ComputerChroniclesCache";
 import cookieParser from "cookie-parser";
+import { validateComputerChroniclesMetadata } from "./ComputerChroniclesEpisodeMetadata";
 
 export const PORT = requireEnv("PORT");
 export const CACHE_REFRESH_IN_SECONDS = validatePositiveInteger(parseInt(requireEnv("CACHE_REFRESH_IN_SECONDS")));
 
 export const STATIC_CONTENT_PATH = requireEnv("STATIC_CONTENT_PATH");
+
+export type LoginStatus = {
+    loggedIn: false;
+} | {
+    loggedIn: true;
+    userName: string;
+    role: string;
+};
 
 async function main() {
     const db = await connectToDatabase();
@@ -19,10 +28,22 @@ async function main() {
     const usersDb = new Users(db);
     const authDb = new AuthTokens(db);
 
+    async function getUser(cookies: { AuthToken?: string; }): Promise<UserData | null> {
+        if (cookies.AuthToken) {
+            let userName = await authDb.getUserName(cookies.AuthToken);
+            if (userName) {
+                let userData = await usersDb.getUser(userName);
+                if (userData) return userData;
+            }
+        }
+        return null;
+    }
+
     const cache: ComputerChroniclesCache = new ComputerChroniclesCache(episodeDb, CACHE_REFRESH_IN_SECONDS);
 
     const app = express();
     app.use(cookieParser());
+    app.use(express.json());
     app.use(express.urlencoded({
         extended: true
     }));
@@ -63,9 +84,39 @@ async function main() {
     });
 
     app.put('/api/episode/:id', async (req, res) => {
-        console.log(req.headers);
-        console.log(req.body)
-        res.status(200);
+        let user = await getUser(req.cookies);
+        if (!user) {
+            res.status(403).send({
+                error: "Please log in"
+            });
+            return;
+        }
+
+        let episode = validateComputerChroniclesMetadata(req.body);
+        episode.editedBy = user.name;
+        if (!episode.isReRun && !episode.host) episode.host = null;
+
+
+        try {
+            let result = await episodeDb.updateEpisode(episode);
+
+            if (result.episodeWasUpdated) {
+                console.error(`${user.name} made the following changes to episode ${episode.episodeNumber}:`);
+                console.log(result.changes.map(change => ` - ${change}`).join('\n'));
+                console.log('');
+            } else {
+                console.log(`${user.name} submitted episode ${episode.episodeNumber} but no changes were detected\n`);
+            }
+
+            res.status(200);
+            return;
+        } catch (err) {
+            console.error(`[error] ${user.name} submitted episode ${episode.episodeNumber}`);
+            console.error((err as Error).message);
+            res.status(400).send({
+                error: (err as Error).message
+            });
+        }
     });
 
     // Guests
@@ -93,30 +144,33 @@ async function main() {
         res.status(200).send(cache.tags);
     });
 
+    app.get('/api/loginstatus/', async (req, res) => {
+        let user = await getUser(req.cookies);
+
+        let status!: LoginStatus;
+        if (user) {
+            status = {
+                loggedIn: true,
+                userName: user.name,
+                role: user.role
+            };
+        } else {
+            status = {
+                loggedIn: false
+            };
+        }
+
+        res.status(200).send(status);
+    });
+
     app.get('/logout/', async (req, res) => {
-        console.log(req.cookies);
+        let user = await getUser(req.cookies);
+        if (user) console.log(`${user.name} logged out`);
+        res.clearCookie('AuthToken');
+        res.status(200).send("Logged out.");
     });
-
-    app.get('/login', async (req, res) => {
-        res.status(200).send(`<!DOCTYPE html>
-        <html>
-        <head><title>Login</title></head>
-        <h1>Login</h1> 
-        <form action="#" method="post">
-                <div><label>Username:</label>
-                <input type="text" placeholder="Enter Username" name="username" required></div>
-                <div><label>Password:</label>
-                <input type="password" placeholder="Enter Password" name="password" required></div>
-                <button type="submit">Login</button>
-        </form>
-        <body>
-        </body>
-        </html>`);
-    });
-
 
     app.post('/login', async (req, res) => {
-        //console.log(req.body);
         const { username, password } = req.body;
 
         try {
@@ -124,13 +178,9 @@ async function main() {
             if (user) {
                 const authToken: string = await authDb.getNewToken(user.name);
                 res.cookie('AuthToken', authToken);
+                console.log(`${username} logged in`);
 
-                // Redirect user to the protected page
-                if (user.role == "admin") {
-                    res.redirect('/?admin=1');
-                } else {
-                    res.redirect('/');
-                }
+                res.redirect('/');
             } else {
                 res.status(400).send(`Incorrect username or password`);
             }

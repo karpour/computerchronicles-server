@@ -7,10 +7,7 @@ async function main() {
     const db = await connectToDatabase();
     const authDb = new AuthTokens(db);
 
-    let tokens = await authDb.getAllTokens().toArray();
-    tokens.forEach(
-        token => console.log(`${token.userName} ${token.token.substr(0,5)}...`)
-    );
+    await authDb.wipe();
     process.exit(0);
 }
 

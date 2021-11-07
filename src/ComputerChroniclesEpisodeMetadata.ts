@@ -42,13 +42,14 @@ export type ComputerChroniclesOriginalEpisodeMetadata = {
     airingDate: string,
     productionDate: string,
     description: string,
-    host?: ComputerChroniclesGuest,
+    host: ComputerChroniclesGuest | null,
     coHosts: ComputerChroniclesGuest[],
     guests: ComputerChroniclesGuest[],
     locations: ComputerChroniclesLocation[],
     featuredProducts: ComputerChroniclesFeaturedProduct[],
     tags: string[],
     status: ComputerChroniclesEpisodeStatus;
+    editedBy?: string;
 };
 
 export type ComputerChroniclesRerunEpisodeMetadata = {
@@ -59,6 +60,7 @@ export type ComputerChroniclesRerunEpisodeMetadata = {
     reRunOf: number | null,
     airingDate: string,
     status: ComputerChroniclesEpisodeStatus;
+    editedBy?: string;
 };
 
 export type ComputerChroniclesEpisodeInfo = {
@@ -72,3 +74,10 @@ export type ComputerChroniclesEpisodeInfo = {
 });
 
 export type ComputerChroniclesEpisodeMetadata = ComputerChroniclesOriginalEpisodeMetadata | ComputerChroniclesRerunEpisodeMetadata;
+
+export function validateComputerChroniclesMetadata(metadata: unknown): ComputerChroniclesEpisodeMetadata {
+    if (metadata && typeof (metadata) === 'object') {
+        return metadata as ComputerChroniclesEpisodeMetadata;
+    }
+    throw new Error("Episode metadata is not an object");
+}

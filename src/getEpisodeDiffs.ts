@@ -45,118 +45,40 @@ export default function getEpisodeDiffs(ep1: ComputerChroniclesEpisodeMetadata, 
             ep1.coHosts.map((chHost) => `${chHost.name} | ${chHost.role}`),
             ep2.coHosts.map((chHost) => `${chHost.name} | ${chHost.role}`));
         if (coHostsDiff.added)
-            diffs.push(`Co-Hosts added: ${coHostsDiff.added.join(',')}`);
+            diffs.push(`Co-Hosts added: ${coHostsDiff.added.join(', ')}`);
         if (coHostsDiff.removed)
-            diffs.push(`Co-Hosts removed: ${coHostsDiff.removed.join(',')}`);
+            diffs.push(`Co-Hosts removed: ${coHostsDiff.removed.join(', ')}`);
 
         const guestsDiff = getArrayDiff(
             ep1.guests.map((guest) => `${guest.name} | ${guest.role}`),
             ep2.guests.map((guest) => `${guest.name} | ${guest.role}`));
         if (guestsDiff.added)
-            diffs.push(`Guests added: ${guestsDiff.added.join(',')}`);
+            diffs.push(`Guests added: ${guestsDiff.added.join(', ')}`);
         if (guestsDiff.removed)
-            diffs.push(`Guests removed: ${guestsDiff.removed.join(',')}`);
+            diffs.push(`Guests removed: ${guestsDiff.removed.join(', ')}`);
 
         const locationsDiff = getArrayDiff(
             ep1.locations.map((location) => `${location.name} | ${location.location}`),
             ep2.locations.map((location) => `${location.name} | ${location.location}`));
         if (locationsDiff.added)
-            diffs.push(`Location added: ${locationsDiff.added.join(',')}`);
+            diffs.push(`Location added: ${locationsDiff.added.join(', ')}`);
         if (locationsDiff.removed)
-            diffs.push(`Location removed: ${locationsDiff.removed.join(',')}`);
+            diffs.push(`Location removed: ${locationsDiff.removed.join(', ')}`);
 
         const productsDiff = getArrayDiff(
             ep1.featuredProducts.map((product) => `${product.company} | ${product.product}`),
             ep2.featuredProducts.map((product) => `${product.company} | ${product.product}`));
         if (productsDiff.added)
-            diffs.push(`Featured products added: ${productsDiff.added.join(',')}`);
+            diffs.push(`Featured products added: ${productsDiff.added.join(', ')}`);
         if (productsDiff.removed)
-            diffs.push(`Featured products removed: ${productsDiff.removed.join(',')}`);
+            diffs.push(`Featured products removed: ${productsDiff.removed.join(', ')}`);
 
         const tagsDiff = getArrayDiff(ep1.tags, ep2.tags);
         if (tagsDiff.added)
-            diffs.push(`Tags added: ${tagsDiff.added.join(',')}`);
+            diffs.push(`Tags added: ${tagsDiff.added.join(', ')}`);
         if (tagsDiff.removed)
-            diffs.push(`Tags removed: ${tagsDiff.removed.join(',')}`);
+            diffs.push(`Tags removed: ${tagsDiff.removed.join(', ')}`);
 
         return diffs;
     }
 }
-
-let ep1: ComputerChroniclesEpisodeMetadata = {
-    issues: {
-        videoIssues: false,
-        audioIssues: false,
-        noAudio: false,
-    },
-    episodeNumber: 101,
-    isReRun: false,
-    airingDate: "1970-01-01",
-    productionDate: "1970-01-01",
-    title: "Japanese PC's",
-    description: "This is a description\n\nof the episode",
-    host: { name: "Stewart Cheifet" },
-    coHosts: [{ name: "Gary Kildall", role: "DRI" }, { name: "George Morrow", role: "Morrow Computing" }],
-    locations: [{
-        name: "CES 1995",
-        location: "Las Vegas"
-    }],
-    iaIdentifier: "Japanese1985",
-    guests: [
-        {
-            name: "John Miller",
-            role: "Microsoft"
-        },
-        {
-            name: "Jack Johnson"
-        }
-    ],
-    featuredProducts: [{
-        company: "Microsoft",
-        product: "Windows 95"
-    }],
-    tags: ["Tag1", "Tag2", "Taggy tag"],
-    status: "unknown"
-};
-
-let ep2: ComputerChroniclesEpisodeMetadata = {
-    issues: {
-        videoIssues: false,
-        audioIssues: false,
-        noAudio: false,
-    },
-    episodeNumber: 101,
-    isReRun: false,
-    airingDate: "1970-01-03",
-    productionDate: "1970-01-01",
-    title: "Taiwanese PC's",
-    description: "This is a description\n\nof the episode",
-    host: { name: "Stewart Cheifet" },
-    coHosts: [{ name: "Gary Kildall", role: "DRI" }, { name: "George Sorrow", role: "Morrow Computing" }],
-    locations: [{
-        name: "CES 1995",
-        location: "Las Vegas"
-    },
-    {
-        name: "CES 2-38",
-        location: "Las Vegas"
-    }],
-    iaIdentifier: "Japanese1986",
-    guests: [
-        {
-            name: "John Miller",
-            role: "Microsoft"
-        },
-        {
-            name: "Jack Johnson"
-        }
-    ],
-    featuredProducts: [{
-        company: "Microsoft",
-        product: "Windows 96"
-    }],
-    tags: ["Tag1", "Tag2ggg"],
-    status: "unknown"
-};
-
-//console.log(getEpisodeDiffs(ep1, ep1));

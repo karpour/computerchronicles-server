@@ -10,6 +10,13 @@ type ComputerChroniclesEpisodeMetadataMongo = ComputerChroniclesEpisodeMetadata 
 const MONGO_EPISODES_COLLECTION = requireEnv("MONGO_EPISODES_COLLECTION");
 const MONGO_ARCHIVE_COLLECTION = requireEnv("MONGO_ARCHIVE_COLLECTION");
 
+type ComputerChroniclesEpisodeUpdateResult = {
+    episodeWasUpdated: true,
+    changes: string[];
+    episodeNumber: number;
+} | {
+    episodeWasUpdated: false,
+};
 
 export default class ComputerChroniclesEpisodeDb {
     protected episodeCollection: Collection<ComputerChroniclesEpisodeMetadataMongo>;
@@ -55,23 +62,29 @@ export default class ComputerChroniclesEpisodeDb {
         return null;
     }
 
-    public async updateEpisode(newEpisode: ComputerChroniclesEpisodeMetadata): Promise<UpdateResult | null> {
+    public async updateEpisode(newEpisode: ComputerChroniclesEpisodeMetadata): Promise<ComputerChroniclesEpisodeUpdateResult> {
         let oldEpisode = await this.episodeCollection.findOne({ _id: this.getEpisodeObjectId(newEpisode.episodeNumber) });
         if (!oldEpisode) throw new Error(`No episode with episode number ${newEpisode.episodeNumber} exists`);
 
         // Insert old version into version db  
         let diffs = getEpisodeDiffs(oldEpisode, newEpisode);
         if (diffs?.length) {
-            console.log(`Diffs found, updating episode from version ${oldEpisode.version} -> ${oldEpisode.version + 1}`);
-            console.log(diffs);
             // Create new episode object
             let newEpisodeDataMongo = { ...newEpisode, version: oldEpisode.version + 1 };
             this.episodeArchive.insertOne({ ...oldEpisode, _id: this.getEpisodeObjectArchiveId(oldEpisode.episodeNumber, oldEpisode.version) });
-
-            return this.episodeCollection.updateOne({ _id: this.getEpisodeObjectId(oldEpisode.episodeNumber) }, { $set: newEpisodeDataMongo });
+            let result = await this.episodeCollection.updateOne({ _id: this.getEpisodeObjectId(oldEpisode.episodeNumber) }, { $set: newEpisodeDataMongo });
+            if (!result.modifiedCount) {
+                throw new Error("No episode was updated");
+            }
+            return {
+                episodeWasUpdated: true,
+                episodeNumber: newEpisode.episodeNumber,
+                changes: diffs
+            };
         }
-        console.log("No changes, skipping");
-        return null;
+        return {
+            episodeWasUpdated: false
+        };
     }
 
     public async insertEpisode(episode: ComputerChroniclesEpisodeMetadata): Promise<InsertOneResult<ComputerChroniclesEpisodeMetadata>> {

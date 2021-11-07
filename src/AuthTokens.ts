@@ -1,6 +1,7 @@
 import { hashSync } from "bcrypt";
 import { randomBytes } from "crypto";
 import { Collection, Db, ObjectId } from "mongodb";
+import dateToYYYYMMDD from "./dateToYYYYMMDD";
 import requireEnv from "./requireEnv";
 import Users from "./Users";
 
@@ -9,6 +10,7 @@ const MONGO_AUTHTOKENS_COLLECTION = requireEnv("MONGO_AUTHTOKENS_COLLECTION");
 export type TokenData = {
     token: string,
     userName: string;
+    dateAdded: string;
 };
 
 type TokenDataMongo = TokenData & {
@@ -30,7 +32,8 @@ export default class AuthTokens {
         const token = this.generateAuthToken();
         return this.authTokensCollection.insertOne({
             token: token,
-            userName: userName
+            userName: userName,
+            dateAdded: dateToYYYYMMDD(new Date())
         }).then(result => {
             //console.log(result);
             return token;
@@ -45,7 +48,12 @@ export default class AuthTokens {
         return this.authTokensCollection.deleteOne({ token: token });
     }
 
-    public getUserName(token: string) {
-        return this.authTokensCollection.findOne({ token: token });
+    public wipe() {
+        return this.authTokensCollection.drop();
+    }
+
+    public async getUserName(token: string): Promise<string | null> {
+        let tokenData = await this.authTokensCollection.findOne({ token: token });
+        return tokenData ? tokenData.userName : null;
     }
 }
