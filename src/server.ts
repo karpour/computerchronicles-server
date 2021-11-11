@@ -108,7 +108,7 @@ async function main() {
                 console.log(`${user.name} submitted episode ${episode.episodeNumber} but no changes were detected\n`);
             }
 
-            res.status(200);
+            res.status(200).send({ success: true });
             return;
         } catch (err) {
             console.error(`[error] ${user.name} submitted episode ${episode.episodeNumber}`);
