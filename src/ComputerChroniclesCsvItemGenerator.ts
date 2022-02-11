@@ -90,7 +90,9 @@ export function convertCsvCCData(c: CsvCCData): ComputerChroniclesEpisodeMetadat
             episodeNumber: parseInt(c.episodeNumber),
             isReRun: true,
             reRunOf: null,
-            status: mapStatus(c.status)
+            status: mapStatus(c.status),
+            randomAccess: null,
+            randomAccessHost: null,
         };
         if (c.iaIdentifier) reRun.iaIdentifier = c.iaIdentifier;
         if (c.reRunOf) reRun.reRunOf = parseInt(c.reRunOf);
@@ -109,7 +111,9 @@ export function convertCsvCCData(c: CsvCCData): ComputerChroniclesEpisodeMetadat
             locations: [],
             featuredProducts: c.featuredProducts.split(',').filter(item => item != "").map(parseCCProduct),
             tags: c.tags.split(',').filter(item => item != "").map(tag => tag.trim()).filter(tag => tag != ""),
-            status: mapStatus(c.status)
+            status: mapStatus(c.status),
+            randomAccess: null,
+            randomAccessHost: null,
         };
         if (c.iaIdentifier) originalEp.iaIdentifier = c.iaIdentifier;
         return originalEp;

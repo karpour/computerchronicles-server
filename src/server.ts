@@ -7,7 +7,8 @@ import Users, { UserData } from "./Users";
 import AuthTokens from "./AuthTokens";
 import ComputerChroniclesCache from "./ComputerChroniclesCache";
 import cookieParser from "cookie-parser";
-import { validateComputerChroniclesMetadata } from "./ComputerChroniclesEpisodeMetadata";
+import { ComputerChroniclesOriginalEpisodeMetadata, validateComputerChroniclesMetadata } from "./ComputerChroniclesEpisodeMetadata";
+import sendDiscordChangeLogMessage from "./sendDiscordMessage";
 
 export const PORT = requireEnv("PORT");
 export const CACHE_REFRESH_IN_SECONDS = validatePositiveInteger(parseInt(requireEnv("CACHE_REFRESH_IN_SECONDS")));
@@ -47,6 +48,40 @@ async function main() {
     app.use(express.urlencoded({
         extended: true
     }));
+
+
+    app.get('/computerchronicles_metadata.ndjson', async (req, res) => {
+        res.status(200);
+        res.attachment("computerchronicles_metadata.ndjson");
+        res.type("application/x-ndjson");
+        const episodes = await episodeDb.getAllEpisodes();
+        for (let episode of episodes) {
+            res.write(JSON.stringify(episode));
+            res.write('\n');
+        }
+        res.end();
+    });
+
+    app.get('/computerchronicles_metadata.json', async (req, res) => {
+        res.status(200);
+        res.attachment("computerchronicles_metadata.json");
+        res.type("application/json");
+        res.send(await episodeDb.getAllEpisodes());
+    });
+
+    app.get('/brokenepisodes', async (req, res) => {
+        const episodes: ComputerChroniclesOriginalEpisodeMetadata[] = (await episodeDb.getAllEpisodes())
+            .filter(episode => !episode.isReRun && (!episode.iaIdentifier || episode.issues?.audioIssues || episode.issues?.videoIssues || episode.issues?.noAudio)) as ComputerChroniclesOriginalEpisodeMetadata[];
+        res.contentType('text/plain');
+        for (let episode of episodes) {
+            const ccNumber = `CC${episode.episodeNumber}`.padEnd(6);
+            res.write(`${ccNumber} ${episode.title}`);
+            if (!episode.iaIdentifier)
+                res.write(` [missing]`);
+            res.write('\n');
+        }
+        res.end();
+    });
 
     app.get('/api/episodes/', async (req, res) => {
         res.status(200).send(await episodeDb.getAllEpisodes());
@@ -101,9 +136,11 @@ async function main() {
             let result = await episodeDb.updateEpisode(episode);
 
             if (result.episodeWasUpdated) {
-                console.error(`${user.name} made the following changes to episode ${episode.episodeNumber}:`);
+                console.log(`${user.name} made the following changes to episode ${episode.episodeNumber}:`);
                 console.log(result.changes.map(change => ` - ${change}`).join('\n'));
                 console.log('');
+
+                sendDiscordChangeLogMessage(user.name, episode, result.changes);
             } else {
                 console.log(`${user.name} submitted episode ${episode.episodeNumber} but no changes were detected\n`);
             }
@@ -177,7 +214,7 @@ async function main() {
             const user = await usersDb.getUserAuth(username, password);
             if (user) {
                 const authToken: string = await authDb.getNewToken(user.name);
-                res.cookie('AuthToken', authToken);
+                res.cookie('AuthToken', authToken, { expires: new Date(new Date().getTime() + (1000 * 60 * 60 * 24 * 365)) });
                 console.log(`${username} logged in`);
 
                 res.redirect('/');

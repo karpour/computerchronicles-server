@@ -3,8 +3,12 @@ export type ComputerChroniclesGuest = {
     role?: string;
 };
 
-export function computerChroniclesGuestToString(guest: ComputerChroniclesGuest): string {
-    return `${guest.name}${guest.role ? " | " + guest.role : ""}`;
+export function computerChroniclesGuestToString(guest: ComputerChroniclesGuest | null): string {
+    if (guest) {
+        if (!guest.name && !guest.role) return "[nobody]";
+        return `${guest.name}${guest.role ? " | " + guest.role : ""}`;
+    }
+    return "[nobody]";
 }
 
 export type ComputerChroniclesFeaturedProduct = {
@@ -49,7 +53,10 @@ export type ComputerChroniclesOriginalEpisodeMetadata = {
     featuredProducts: ComputerChroniclesFeaturedProduct[],
     tags: string[],
     status: ComputerChroniclesEpisodeStatus;
+    randomAccess: string[] | null;
+    randomAccessHost: ComputerChroniclesGuest | null,
     editedBy?: string;
+    notes?: string;
 };
 
 export type ComputerChroniclesRerunEpisodeMetadata = {
@@ -60,7 +67,10 @@ export type ComputerChroniclesRerunEpisodeMetadata = {
     reRunOf: number | null,
     airingDate: string,
     status: ComputerChroniclesEpisodeStatus;
+    randomAccess: string[] | null;
+    randomAccessHost: ComputerChroniclesGuest | null,
     editedBy?: string;
+    notes?: string;
 };
 
 export type ComputerChroniclesEpisodeInfo = {

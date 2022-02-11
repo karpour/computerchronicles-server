@@ -9,14 +9,13 @@ async function main() {
     }
     const db = await connectToDatabase();
     const episodeDb = new ComputerChroniclesEpisodeDb(db);
+
     try {
         console.log("WIPE");
         await episodeDb.wipe();
     } catch (err) {
         console.log((err as Error).message);
     }
-
-
 
     const filePath = process.argv[2];
 
