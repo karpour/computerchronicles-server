@@ -65,6 +65,7 @@ export type ComputerChroniclesRerunEpisodeMetadata = {
     episodeNumber: number,
     isReRun: true,
     reRunOf: number | null,
+    productionDate?: string,
     airingDate: string,
     status: ComputerChroniclesEpisodeStatus;
     randomAccess: string[] | null;

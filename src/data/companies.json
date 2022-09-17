@@ -1,0 +1,36 @@
+[{
+        "name": "Apple",
+        "aliases": [
+            "Apple, Inc.",
+            "Apple Computer, Inc."
+        ],
+        "url": "www.apple.com",
+        "wikiUrl": "https://en.wikipedia.org/wiki/Apple_Inc."
+    },
+    {
+        "name": "Cybersmith",
+        "aliases": [],
+        "address": "Cybersmith Harvard Square\n42 Church Street\nCambridge, MA 02138\nUSA"
+    },
+    {
+        "name": "VIS Interactive Media Productions Ltd.",
+        "aliases": [],
+        "address": "1 Harrison Road\nDundee Tayside, DD2 3SN\nUnited Kingdom"
+    },
+    {
+        "name": "Voyager Company",
+        "aliases": [
+            "The Voyager Company"
+        ],
+        "url": "www.voyagercompany.com",
+        "wikiUrl": "https://en.wikipedia.org/wiki/Voyager_Company"
+    },
+    {
+        "name": "ErgoDyne Corporation",
+        "aliases": [
+            "ErgoDyne"
+        ],
+        "url": "www.ergodyne.com",
+        "address": "1410 Energy Park Drive, Suite 1, St. Paul, MN 55108, USA"
+    }
+]

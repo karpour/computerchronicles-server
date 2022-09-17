@@ -9,6 +9,7 @@ import ComputerChroniclesCache from "./ComputerChroniclesCache";
 import cookieParser from "cookie-parser";
 import { ComputerChroniclesOriginalEpisodeMetadata, validateComputerChroniclesMetadata } from "./ComputerChroniclesEpisodeMetadata";
 import sendDiscordChangeLogMessage from "./sendDiscordMessage";
+import getCompanyName from "./getCompanyName";
 
 export const PORT = requireEnv("PORT");
 export const CACHE_REFRESH_IN_SECONDS = validatePositiveInteger(parseInt(requireEnv("CACHE_REFRESH_IN_SECONDS")));
@@ -69,6 +70,17 @@ async function main() {
         res.send(await episodeDb.getAllEpisodes());
     });
 
+    app.get('/episodelist.csv', async (req, res) => {
+        res.status(200);
+        res.attachment("episodelist.csv");
+        res.type("text/csv");
+        const eps = await episodeDb.getAllEpisodes();
+        eps.forEach(ep => {
+            res.write(`CC${ep.episodeNumber},"${ep.isReRun ? 'Re-run of ' + ep.reRunOf ?? "UNKNOWN" : ep.title}",${ep.productionDate ?? ""},${ep.airingDate}\n`);
+        });
+        res.end();
+    });
+
     app.get('/brokenepisodes', async (req, res) => {
         const episodes: ComputerChroniclesOriginalEpisodeMetadata[] = (await episodeDb.getAllEpisodes())
             .filter(episode => !episode.isReRun && (!episode.iaIdentifier || episode.issues?.audioIssues || episode.issues?.videoIssues || episode.issues?.noAudio)) as ComputerChroniclesOriginalEpisodeMetadata[];
@@ -80,6 +92,26 @@ async function main() {
                 res.write(` [missing]`);
             res.write('\n');
         }
+        res.end();
+    });
+
+    app.get('/companies', async (req, res) => {
+        const episodes: ComputerChroniclesOriginalEpisodeMetadata[] = (await episodeDb.getAllEpisodes())
+            .filter(episode => !episode.isReRun) as ComputerChroniclesOriginalEpisodeMetadata[];
+        res.contentType('text/plain');
+        
+        const companies = new Set<string>();
+        for (let ep of episodes) {
+            if (!ep.isReRun) {
+                ep.featuredProducts.forEach(product => {
+                    if (product.company) companies.add(getCompanyName(product.company));
+                });
+                ep.guests.forEach(guest => {
+                    if (guest.role) companies.add(getCompanyName(guest.role));
+                });
+            }
+        }
+        res.write(Array.from(companies).sort().join('\n'));
         res.end();
     });
 
