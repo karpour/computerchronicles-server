@@ -3,12 +3,11 @@ export type ComputerChroniclesGuest = {
     role?: string;
 };
 
-export function computerChroniclesGuestToString(guest: ComputerChroniclesGuest | null): string {
+export function computerChroniclesGuestToString(guest?: ComputerChroniclesGuest): string {
     if (guest) {
-        if (!guest.name && !guest.role) return "[nobody]";
         return `${guest.name}${guest.role ? " | " + guest.role : ""}`;
     }
-    return "[nobody]";
+    return "undefined";
 }
 
 export type ComputerChroniclesFeaturedProduct = {
@@ -35,10 +34,12 @@ export type ComputerChroniclesEpisodeIssues = {
     noAudio?: boolean,
 };
 
-export type ComputerChroniclesEpisodeStatus = "unknown" | "needswork" | "review" | "done";
+export const COMPUTERCHRONICLES_EPISODE_STATUSES = ["unknown", "videochecked", "needswork", "review", "done"] as const;
+
+export type ComputerChroniclesEpisodeStatus = typeof COMPUTERCHRONICLES_EPISODE_STATUSES[number];
 
 export type ComputerChroniclesOriginalEpisodeMetadata = {
-    iaIdentifier?: string,
+    iaIdentifier: string | null,
     issues?: ComputerChroniclesEpisodeIssues;
     title: string,
     episodeNumber: number,
@@ -61,11 +62,11 @@ export type ComputerChroniclesOriginalEpisodeMetadata = {
 
 export type ComputerChroniclesRerunEpisodeMetadata = {
     issues?: ComputerChroniclesEpisodeIssues;
-    iaIdentifier?: string,
+    iaIdentifier: string | null,
     episodeNumber: number,
     isReRun: true,
     reRunOf: number | null,
-    productionDate?: string,
+    productionDate: string,
     airingDate: string,
     status: ComputerChroniclesEpisodeStatus;
     randomAccess: string[] | null;
@@ -73,6 +74,7 @@ export type ComputerChroniclesRerunEpisodeMetadata = {
     editedBy?: string;
     notes?: string;
 };
+
 
 export type ComputerChroniclesEpisodeInfo = {
     episodeNumber: number,

@@ -14,6 +14,8 @@ export default function getEpisodeDiffs(ep1: ComputerChroniclesEpisodeMetadata, 
         return result;
     };
 
+    if (ep1.isReRun !== ep2.isReRun)
+        diffs.push(`Episode re-run status set to ${ep2.isReRun}`);
     if (ep1.iaIdentifier !== ep2.iaIdentifier)
         diffs.push(`Internet archive identifier changed from ${ep1.iaIdentifier} to ${ep2.iaIdentifier}`);
     if (ep1.issues?.audioIssues !== ep2.issues?.audioIssues)
@@ -83,7 +85,6 @@ export default function getEpisodeDiffs(ep1: ComputerChroniclesEpisodeMetadata, 
             diffs.push(`Tags added: ${tagsDiff.added.join(', ')}`);
         if (tagsDiff.removed)
             diffs.push(`Tags removed: ${tagsDiff.removed.join(', ')}`);
-
-        return diffs;
     }
+    return diffs;
 }

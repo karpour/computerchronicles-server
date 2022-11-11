@@ -87,12 +87,14 @@ export function convertCsvCCData(c: CsvCCData): ComputerChroniclesEpisodeMetadat
     if (c.isReRun == "TRUE") {
         const reRun: ComputerChroniclesRerunEpisodeMetadata = {
             airingDate: c.airingDate ? validateDate(c.airingDate) : "",
+            productionDate: "",
             episodeNumber: parseInt(c.episodeNumber),
             isReRun: true,
             reRunOf: null,
             status: mapStatus(c.status),
             randomAccess: null,
             randomAccessHost: null,
+            iaIdentifier: null,
         };
         if (c.iaIdentifier) reRun.iaIdentifier = c.iaIdentifier;
         if (c.reRunOf) reRun.reRunOf = parseInt(c.reRunOf);
@@ -114,6 +116,8 @@ export function convertCsvCCData(c: CsvCCData): ComputerChroniclesEpisodeMetadat
             status: mapStatus(c.status),
             randomAccess: null,
             randomAccessHost: null,
+            iaIdentifier: null,
+
         };
         if (c.iaIdentifier) originalEp.iaIdentifier = c.iaIdentifier;
         return originalEp;
@@ -130,9 +134,7 @@ export async function* ComputerChroniclesCsvItemGenerator(fileStream: ReadStream
     for await (let episode of csvStream) {
         try {
             let epCsv = episode as CsvCCData;
-
             let ep = convertCsvCCData(epCsv);
-
             yield ep;
         } catch (err) {
             //console.error(item);

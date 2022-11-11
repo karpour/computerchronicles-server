@@ -58,7 +58,12 @@ export default class ComputerChroniclesEpisodeDb {
             ep = await this.episodeCollection.findOne({ _id: this.getEpisodeObjectId(episodeNumber), version: version });
             if (!ep) ep = await this.episodeArchive.findOne({ _id: this.getEpisodeObjectArchiveId(episodeNumber, version), version: version });
         }
-        if (ep) return this.stripMongoData(ep);
+        if (ep) {
+            if (ep.iaIdentifier === undefined) {
+                ep.iaIdentifier = null;
+            }
+            return this.stripMongoData(ep);
+        }
         return null;
     }
 
@@ -66,6 +71,7 @@ export default class ComputerChroniclesEpisodeDb {
         let oldEpisode = await this.episodeCollection.findOne({ _id: this.getEpisodeObjectId(newEpisode.episodeNumber) });
         if (!oldEpisode) throw new Error(`No episode with episode number ${newEpisode.episodeNumber} exists`);
 
+        if (newEpisode.iaIdentifier == undefined) newEpisode.iaIdentifier = null;
         // Insert old version into version db  
         let diffs = getEpisodeDiffs(oldEpisode, newEpisode);
         if (diffs?.length) {

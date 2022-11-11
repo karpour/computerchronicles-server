@@ -193,6 +193,10 @@ async function main() {
         res.status(200).send(cache.guests);
     });
 
+    app.get('/api/companies/', async (req, res) => {
+        res.status(200).send(cache.companies);
+    });
+
     // CoHosts
     app.get('/api/cohosts/', async (req, res) => {
         res.status(200).send(cache.coHosts);

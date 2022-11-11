@@ -19,6 +19,7 @@ export default class ComputerChroniclesCache {
     private coHostCache!: CacheMap<ComputerChroniclesGuest>;
     private featuredProductCache!: CacheMap<ComputerChroniclesFeaturedProduct>;
     private locationCache!: CacheMap<ComputerChroniclesLocation>;
+    private companiesCache!: Set<string>;
     private tagsCache!: string[];
 
 
@@ -38,6 +39,7 @@ export default class ComputerChroniclesCache {
         this.guestCache = new Map();
         this.featuredProductCache = new Map();
         this.locationCache = new Map();
+        this.companiesCache = new Set<string>();
         this.tagsCache = [];
 
         for (let episode of episodes) {
@@ -53,6 +55,7 @@ export default class ComputerChroniclesCache {
         this.addFeaturedProducts(episode.featuredProducts);
         this.addLocations(episode.locations);
         this.addTags(episode.tags);
+        this.addCompanies(episode.featuredProducts.map(prod => prod.company).filter(company => company !== undefined) as string[]);
     }
 
     public addCoHosts(coHosts: ComputerChroniclesGuest[]) {
@@ -69,6 +72,10 @@ export default class ComputerChroniclesCache {
     }
     public addLocations(locations: ComputerChroniclesLocation[]) {
         locations.forEach(location => this.locationCache.set(computerChroniclesLocationToString(location), location));
+    }
+
+    public addCompanies(companies: string[]) {
+        companies.forEach(company => this.companiesCache.add(company));
     }
 
     public addTags(tags: string[]) {
@@ -89,6 +96,9 @@ export default class ComputerChroniclesCache {
     }
     public get locations(): ComputerChroniclesLocation[] {
         return Array.from(this.locationCache.values());
+    }
+    public get companies(): string[] {
+        return Array.from(this.companiesCache.values()).sort();
     }
     public get tags(): string[] {
         return this.tagsCache;
