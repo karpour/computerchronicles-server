@@ -67,14 +67,14 @@ export default class ComputerChroniclesEpisodeDb {
         return null;
     }
 
-    public async updateEpisode(newEpisode: ComputerChroniclesEpisodeMetadata): Promise<ComputerChroniclesEpisodeUpdateResult> {
+    public async updateEpisode(newEpisode: ComputerChroniclesEpisodeMetadata, force: boolean = false): Promise<ComputerChroniclesEpisodeUpdateResult> {
         let oldEpisode = await this.episodeCollection.findOne({ _id: this.getEpisodeObjectId(newEpisode.episodeNumber) });
         if (!oldEpisode) throw new Error(`No episode with episode number ${newEpisode.episodeNumber} exists`);
 
         if (newEpisode.iaIdentifier == undefined) newEpisode.iaIdentifier = null;
         // Insert old version into version db  
         let diffs = getEpisodeDiffs(oldEpisode, newEpisode);
-        if (diffs?.length) {
+        if (diffs?.length || force) {
             // Create new episode object
             let newEpisodeDataMongo = { ...newEpisode, version: oldEpisode.version + 1 };
             this.episodeArchive.insertOne({ ...oldEpisode, _id: this.getEpisodeObjectArchiveId(oldEpisode.episodeNumber, oldEpisode.version) });

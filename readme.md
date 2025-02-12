@@ -1,5 +1,6 @@
-TODO
+## TODO
 
-Add autocomplete
-Add forward/back buttons
-Right row max width
+- Add autocomplete
+- Add forward/back buttons
+- Right row max width
+

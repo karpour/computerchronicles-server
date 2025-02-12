@@ -91,7 +91,6 @@ async function main() {
         "San Francisco Examiner technology writer": "San Francisco Examiner",
         "Schwab": "Charles Schwab",
         "Silicon Beach": "Silicon Beach Software",
-        "Singer-Link": "Singer Link",
         "Softview": "SoftView",
         "Spinnaker": "Spinnaker Software",
         "Stanford": "Stanford University",
@@ -144,9 +143,35 @@ async function main() {
         "MacWorld": "Mac World Magazine",
         "Micropro": "MicroPro",
         "Author Deluxe Paint III": "Author of Deluxe Paint III",
+        "Webvan": "WebVan",
+        "Yahoo! Inc.": "Yahoo",
+        "Winner's Circle System": "Winner's Circle",
+        "Web TV Networks": "WebTV Networks",
+        "Think Outside": "ThinkOutside",
+        "Syquest": "SyQuest",
+        "Speech Plus\"": "Speech Plus",
+        "Singer Link": "Singer-Link",
+        "SelecTronics": "Selectronics",
+        "Rocke Science Games": "Rocket Science Games",
+        "Rhiannnon Software": "Rhiannon Software",
+        "Osbrone Computer Corporation": "Osborne Computer Corporation",
+        "Nexgen": "NexGen",
+        "MacWorld magazine": "Mac World Magazine",
+        "MacWorld Magazine": "Mac World Magazine",
+        "Interatcive Inc.": "Interactive Inc.",
+        "IntelliChoice, inc.": "IntelliChoice, Inc.",
+        "Humungous Entertainment": "Humongous Entertainment",
+        "Cybercash": "CyberCash",
+        "Cybercash ": "CyberCash",
+        "Communications Intelligence Corporation": "Communication Intelligence Corporation",
+        "Commtouch": "CommTouch",
+        "Carnegie Mellon Univ": "Carnegie Mellon University",
+        "ButtonWare": "Buttonware",
+        "Borland  Software Corporation": "Borland Software Corporation",
+        "BitStream":"Bitstream",
+        "AutoDesk":"Autodesk",
+        "Advanced Rexognition Technologies, Inc. ":"Advanced Recognition Technologies, Inc."
     };
-
-
 
     for (let ep of eps) {
         if (!ep.isReRun) {
@@ -168,12 +193,15 @@ async function main() {
                     if (replaceRules[guest.role] != undefined) {
                         changes.push(`  ${guest.role} => ${replaceRules[guest.role]}`);
                         guest.role = replaceRules[guest.role];
+                    } else if (guest.role?.endsWith(" ") || guest.role?.startsWith(" ")) {
+                        changes.push(`  ${guest.role} => ${guest.role.trim()}`);
+                        guest.role = guest.role.trim();
                     }
                 }
                 if (guest.role) companies.add(`${guest.role}`);
                 //if (guest.role) companies.add(`${guest.role} = ${guest.name} ............................................... ${epUrl}`);
             });
-            
+
             if (changes.length) {
                 console.log(`CC${ep.episodeNumber} - ${ep.title} -- ${epUrl}\n${changes.join('\n')}\n`);
                 let result = await episodeDb.updateEpisode(ep);

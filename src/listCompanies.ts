@@ -10,7 +10,7 @@ async function main() {
     const companies = new Set<string>();
 
 
-    const prefixes:RegExp[] = [
+    const prefixes: RegExp[] = [
         /^(?:Former )?(?:Founder|Co-founder) of (?:the )?/,
         /^Assistant Division Chief at /,
         /^Professor at /,
@@ -18,17 +18,18 @@ async function main() {
         /^District Manager at /,
         /^Leader of (?:the )?/,
         /^CEO of /,
+        /^CEO, /,
         /^CFO of /,
         /^COO of /,
         /^Creator of /,
         /^(?:Former )?(?:Senior )?(?:Vice )?President(?: of [\w\s]+)? (?:of|at) /,
-        /^Author of /,
+        // /^Author of /,
         /^Head of computer research at /,
         /^Chairman of (?:the )?/,
         /^(?:Senior Technology )?Editor(?: in Chief)? (?:of|for|at) /,
         /^Product Manager at /,
         /^Product Manager of /,
-        /^Developer of /,
+        // /^Developer of /,
         /^Developer at /,
         /^(?:Acting )?Director(?: of [\w\s]+)? at /,
         /^Director of /,
@@ -61,7 +62,7 @@ async function main() {
             });
         }
     }
-    console.log(Array.from(companies).sort().join('\n'));
+    console.log(Array.from(companies).map(s => `"${s}"`).sort().join('\n'));
     process.exit(1);
 }
 

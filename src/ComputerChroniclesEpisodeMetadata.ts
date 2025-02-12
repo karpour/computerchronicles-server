@@ -1,9 +1,10 @@
 export type ComputerChroniclesGuest = {
     name: string,
     role?: string;
+    company?:string;
 };
 
-export function computerChroniclesGuestToString(guest?: ComputerChroniclesGuest): string {
+export function computerChroniclesGuestToString(guest?: ComputerChroniclesGuest | null): string {
     if (guest) {
         return `${guest.name}${guest.role ? " | " + guest.role : ""}`;
     }
@@ -20,6 +21,7 @@ export function computerChroniclesFeaturedProductToString(product: ComputerChron
 }
 
 export type ComputerChroniclesLocation = {
+    event?: string;
     name: string;
     location?: string;
 };
